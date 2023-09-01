@@ -66,8 +66,7 @@ scene.onHitWall(SpriteKind.Enemy, hit_edge)
 function calculate_velocity(direction_sprite: Sprite, sprite: Sprite, speed: number) {
     let direction = transformSprites.getRotation(direction_sprite)
     direction = spriteutils.degreesToRadians(direction)
-    sprite.vx = Math.sin(direction) * speed
-    sprite.vy = Math.cos(direction) * -speed
+    sprite.setVelocity(Math.sin(direction) * speed, Math.cos(direction) * -speed)
 }
 
 function player_controls() {

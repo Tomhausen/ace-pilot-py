@@ -6,7 +6,6 @@
         "pxt-arcade-image-transform": "github:robo-technical-group/pxt-arcade-image-transform#v1.0.9",
         "arcade-sprite-util": "github:jwunderl/arcade-sprite-util#v0.4.1",
         "Sprite Grid": "github:microsoft/arcade-grid#v1.3.0",
-        "Timers": "github:microsoft/arcade-timers#v1.1.0",
         "arcade-sprite-data": "github:microsoft/arcade-sprite-data#v0.2.1"
     },
     "files": [

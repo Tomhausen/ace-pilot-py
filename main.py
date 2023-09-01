@@ -67,8 +67,7 @@ scene.on_hit_wall(SpriteKind.enemy, hit_edge)
 def calculate_velocity(direction_sprite: Sprite, sprite: Sprite, speed: number):
     direction = transformSprites.get_rotation(direction_sprite)
     direction = spriteutils.degrees_to_radians(direction)
-    sprite.vx = Math.sin(direction) * speed
-    sprite.vy = Math.cos(direction) * -speed
+    sprite.set_velocity(Math.sin(direction) * speed, Math.cos(direction) * -speed)
 
 def player_controls():
     if controller.up.is_pressed():
@@ -101,6 +100,3 @@ def tick():
     for enemy in sprites.all_of_kind(SpriteKind.enemy):
         enemy_behaviour(enemy)
 game.on_update(tick)
-
-# gh: could do the smoke thing?
-# round based with messages
