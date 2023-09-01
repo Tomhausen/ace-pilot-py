@@ -14,6 +14,11 @@
         "mimeType": "image/x-mkcd-f4",
         "displayName": "enemy"
     },
+    "image4": {
+        "data": "hwQQABAAAAAAAAAAAAAAAAAAsAu7uwsAAAAbMRGxvQAAABvRHd3dCwCw09Gz290LABvRuwCwPQsAG7EAAAA7vQCwvQAAALC9ABu9AAAA270AG7EAAAA7vQAbvQAAsDO9ALAdu7DbvQsAABvdu929AAAAux0R07MAAAAAG9G9CwAAAACwuwsAAA==",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "smoke"
+    },
     "*": {
         "mimeType": "image/x-mkcd-f4",
         "dataEncoding": "base64",

@@ -1,6 +1,7 @@
 namespace SpriteKind {
     export const player_projectile = SpriteKind.create()
     export const enemy_projectile = SpriteKind.create()
+    export const effect = SpriteKind.create()
 }
 
 //  variables
@@ -88,11 +89,11 @@ sprites.onOverlap(SpriteKind.player_projectile, SpriteKind.Enemy, function destr
     
     // 
     info.changeScoreBy(100)
-    enemy.destroy()
+    sprites.destroy(enemy)
     enemy_count -= 1
 })
 sprites.onOverlap(SpriteKind.enemy_projectile, SpriteKind.Player, function take_damage(proj: Sprite, player: Sprite) {
-    proj.destroy()
+    sprites.destroy(proj)
     info.changeLifeBy(-1)
 })
 function hit_edge(sprite: Sprite, location: tiles.Location) {
@@ -141,12 +142,32 @@ function enemy_behaviour(enemy: Sprite) {
     
     transformSprites.changeRotation(enemy, sprites.readDataNumber(enemy, "turn"))
     calculate_velocity(enemy, enemy, enemy_speed)
-    if (randint(1, 150) == 1) {
+    if (randint(1, 50) == 1) {
         fire(enemy, projectile_speed - 50, SpriteKind.enemy_projectile)
     }
     
 }
 
+function destroy_smoke(smoke: Sprite) {
+    // 
+    for (let i = 0; i < info.life() * 5; i++) {
+        smoke.image.setPixel(randint(0, 15), randint(0, 15), 0)
+    }
+}
+
+game.onUpdateInterval(200, function spawn_smoke_trail() {
+    let smoke: Sprite;
+    // 
+    if (info.life() < 3) {
+        smoke = sprites.create(assets.image`smoke`, SpriteKind.effect)
+        smoke.setPosition(player_plane.x, player_plane.y)
+        smoke.scale = 1 / info.life()
+        smoke.z = -5
+        smoke.lifespan = 3000 / info.life()
+    }
+    
+})
+//  
 game.onUpdate(function tick() {
     player_controls()
     if (enemy_count < 1) {
@@ -159,5 +180,9 @@ game.onUpdate(function tick() {
     // 
     for (let enemy of sprites.allOfKind(SpriteKind.Enemy)) {
         enemy_behaviour(enemy)
+    }
+    for (let smoke of sprites.allOfKind(SpriteKind.effect)) {
+        //  
+        destroy_smoke(smoke)
     }
 })

@@ -2,6 +2,7 @@
 class SpriteKind:
     player_projectile = SpriteKind.create()
     enemy_projectile = SpriteKind.create()
+    effect = SpriteKind.create()
 
 # variables
 player_speed = 50
@@ -72,12 +73,12 @@ def new_wave(): #
 def destroy_enemy(proj, enemy):
     global enemy_count #
     info.change_score_by(100)
-    enemy.destroy()
+    sprites.destroy(enemy)
     enemy_count -= 1 #
 sprites.on_overlap(SpriteKind.player_projectile, SpriteKind.enemy, destroy_enemy)
 
 def take_damage(proj, player):
-    proj.destroy()
+    sprites.destroy(proj)
     info.change_life_by(-1)
 sprites.on_overlap(SpriteKind.enemy_projectile, SpriteKind.player, take_damage)
 
@@ -115,8 +116,21 @@ def enemy_behaviour(enemy: Sprite):
         sprites.set_data_number(enemy, "turn", 0)
     transformSprites.change_rotation(enemy, sprites.read_data_number(enemy, "turn"))
     calculate_velocity(enemy, enemy, enemy_speed)
-    if randint(1, 150) == 1:
+    if randint(1, 50) == 1:
         fire(enemy, projectile_speed - 50, SpriteKind.enemy_projectile)
+    
+def destroy_smoke(smoke: Sprite): #
+    for i in range(info.life() * 5):
+        smoke.image.set_pixel(randint(0, 15), randint(0, 15), 0)
+
+def spawn_smoke_trail(): #
+    if info.life() < 3:
+        smoke = sprites.create(assets.image("smoke"), SpriteKind.effect)
+        smoke.set_position(player_plane.x, player_plane.y)
+        smoke.scale = 1 / info.life()
+        smoke.z = -5
+        smoke.lifespan = 3000 / info.life()
+game.on_update_interval(200, spawn_smoke_trail)
 
 def tick():
     player_controls()
@@ -125,5 +139,6 @@ def tick():
     enemy_count_sprite.set_text("Enemy count: " + enemy_count) #
     for enemy in sprites.all_of_kind(SpriteKind.enemy):
         enemy_behaviour(enemy)
+    for smoke in sprites.all_of_kind(SpriteKind.effect): # 
+        destroy_smoke(smoke) # 
 game.on_update(tick)
-
