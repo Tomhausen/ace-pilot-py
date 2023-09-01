@@ -9,10 +9,17 @@ player_turn = 3
 projectile_speed = 150
 enemy_speed = 50
 enemy_turn = 3
+enemy_count = 0 #
+wave = 1 #
 
 # sprites
 player_plane = sprites.create(assets.image("player"), SpriteKind.player)
 transformSprites.rotate_sprite(player_plane, 90)
+enemy_count_sprite = textsprite.create("") #
+enemy_count_sprite.set_outline(1, 15) #
+enemy_count_sprite.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True) #
+enemy_count_sprite.bottom = 120 #
+enemy_count_sprite.left = 0 #
 
 # setup
 scene.set_background_color(9)
@@ -42,16 +49,31 @@ def get_dir_to_player(enemy: Sprite):
     return target_dir
 
 def spawn_enemy():
+    global enemy_count #
     enemy = sprites.create(assets.image("enemy"), SpriteKind.enemy)
+    enemy_count += 1 #
     sprites.set_data_number(enemy, "turn", 0)
     transformSprites.rotate_sprite(enemy, 90)
     place_sprite(enemy)
     transformSprites.rotate_sprite(enemy, get_dir_to_player(enemy))
-game.on_update_interval(4000, spawn_enemy)
+# game.on_update_interval(4000, spawn_enemy)
+
+def new_wave(): #
+    global wave
+    for i in range(wave):
+        spawn_enemy()
+    message = textsprite.create("NEW WAVE")
+    message.set_outline(1, 15)
+    message.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
+    message.set_position(80, 40)
+    message.lifespan = 3000
+    wave += 1
 
 def destroy_enemy(proj, enemy):
+    global enemy_count #
     info.change_score_by(100)
     enemy.destroy()
+    enemy_count -= 1 #
 sprites.on_overlap(SpriteKind.player_projectile, SpriteKind.enemy, destroy_enemy)
 
 def take_damage(proj, player):
@@ -67,7 +89,8 @@ scene.on_hit_wall(SpriteKind.enemy, hit_edge)
 def calculate_velocity(direction_sprite: Sprite, sprite: Sprite, speed: number):
     direction = transformSprites.get_rotation(direction_sprite)
     direction = spriteutils.degrees_to_radians(direction)
-    sprite.set_velocity(Math.sin(direction) * speed, Math.cos(direction) * -speed)
+    sprite.vx = Math.sin(direction) * speed
+    sprite.vy = Math.cos(direction) * -speed
 
 def player_controls():
     if controller.up.is_pressed():
@@ -97,6 +120,10 @@ def enemy_behaviour(enemy: Sprite):
 
 def tick():
     player_controls()
+    if enemy_count < 1: #
+        new_wave() #
+    enemy_count_sprite.set_text("Enemy count: " + enemy_count) #
     for enemy in sprites.all_of_kind(SpriteKind.enemy):
         enemy_behaviour(enemy)
 game.on_update(tick)
+

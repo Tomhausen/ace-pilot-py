@@ -9,9 +9,23 @@ let player_turn = 3
 let projectile_speed = 150
 let enemy_speed = 50
 let enemy_turn = 3
+let enemy_count = 0
+// 
+let wave = 1
+// 
 //  sprites
 let player_plane = sprites.create(assets.image`player`, SpriteKind.Player)
 transformSprites.rotateSprite(player_plane, 90)
+let enemy_count_sprite = textsprite.create("")
+// 
+enemy_count_sprite.setOutline(1, 15)
+// 
+enemy_count_sprite.setFlag(SpriteFlag.RelativeToCamera, true)
+// 
+enemy_count_sprite.bottom = 120
+// 
+enemy_count_sprite.left = 0
+// 
 //  setup
 scene.setBackgroundColor(9)
 scene.setTileMapLevel(assets.tilemap`level`)
@@ -42,16 +56,40 @@ function get_dir_to_player(enemy: Sprite): number {
     return target_dir
 }
 
-game.onUpdateInterval(4000, function spawn_enemy() {
+function spawn_enemy() {
+    
+    // 
     let enemy = sprites.create(assets.image`enemy`, SpriteKind.Enemy)
+    enemy_count += 1
+    // 
     sprites.setDataNumber(enemy, "turn", 0)
     transformSprites.rotateSprite(enemy, 90)
     place_sprite(enemy)
     transformSprites.rotateSprite(enemy, get_dir_to_player(enemy))
-})
+}
+
+//  game.on_update_interval(4000, spawn_enemy)
+function new_wave() {
+    // 
+    
+    for (let i = 0; i < wave; i++) {
+        spawn_enemy()
+    }
+    let message = textsprite.create("NEW WAVE")
+    message.setOutline(1, 15)
+    message.setFlag(SpriteFlag.RelativeToCamera, true)
+    message.setPosition(80, 40)
+    message.lifespan = 3000
+    wave += 1
+}
+
+// 
 sprites.onOverlap(SpriteKind.player_projectile, SpriteKind.Enemy, function destroy_enemy(proj: Sprite, enemy: Sprite) {
+    
+    // 
     info.changeScoreBy(100)
     enemy.destroy()
+    enemy_count -= 1
 })
 sprites.onOverlap(SpriteKind.enemy_projectile, SpriteKind.Player, function take_damage(proj: Sprite, player: Sprite) {
     proj.destroy()
@@ -66,7 +104,8 @@ scene.onHitWall(SpriteKind.Enemy, hit_edge)
 function calculate_velocity(direction_sprite: Sprite, sprite: Sprite, speed: number) {
     let direction = transformSprites.getRotation(direction_sprite)
     direction = spriteutils.degreesToRadians(direction)
-    sprite.setVelocity(Math.sin(direction) * speed, Math.cos(direction) * -speed)
+    sprite.vx = Math.sin(direction) * speed
+    sprite.vy = Math.cos(direction) * -speed
 }
 
 function player_controls() {
@@ -110,6 +149,14 @@ function enemy_behaviour(enemy: Sprite) {
 
 game.onUpdate(function tick() {
     player_controls()
+    if (enemy_count < 1) {
+        // 
+        new_wave()
+    }
+    
+    // 
+    enemy_count_sprite.setText("Enemy count: " + enemy_count)
+    // 
     for (let enemy of sprites.allOfKind(SpriteKind.Enemy)) {
         enemy_behaviour(enemy)
     }
